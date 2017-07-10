@@ -118,17 +118,17 @@ def accuracy(args):
     model = Model(saved_args, deterministic=True)
 
     with tf.Session() as sess:
-        saver = tf.train.Saver(tf.all_variables())
+        saver = tf.train.Saver(tf.global_variables())
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
 
         data = data_loader.tensor.copy()
         n_chunks = len(data) / saved_args.batch_size
-        if len(data) % saved_args.batch_size:
-            n_chunks += 1
-        data_list = np.array_split(data, n_chunks, axis=0)
-
+        # if len(data) % saved_args.batch_size:
+        #     n_chunks += 1
+        data_list = np.array_split(data[:n_chunks*saved_args.batch_size], n_chunks, axis=0)
+        print(n_chunks,saved_args.batch_size,len(data))
         correct_total = 0.0
         num_total = 0.0
         for m in range(n_chunks):
